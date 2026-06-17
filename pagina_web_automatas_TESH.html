@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lenguajes y Autómatas I | TESH</title>
+  <style>
+    :root{
+      --bg:#07111f;
+      --card:#0f2035;
+      --card2:#132b47;
+      --text:#eaf3ff;
+      --muted:#a8bfd8;
+      --accent:#51d6ff;
+      --accent2:#9c7bff;
+      --ok:#39e59f;
+      --bad:#ff6b8a;
+      --line:rgba(255,255,255,.12);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Segoe UI, Arial, sans-serif;
+      background:radial-gradient(circle at top left,#173b68 0,#07111f 42%,#050912 100%);
+      color:var(--text);
+      line-height:1.6;
+    }
+    header{
+      min-height:88vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:40px 22px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    header:before{
+      content:"";
+      position:absolute;
+      width:520px;height:520px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      filter:blur(90px);
+      opacity:.22;
+      border-radius:50%;
+      top:-150px;right:-150px;
+    }
+    .hero{max-width:1050px;position:relative;z-index:1}
+    .badge{
+      display:inline-block;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:8px 16px;
+      color:var(--accent);
+      background:rgba(255,255,255,.06);
+      margin-bottom:22px;
+      font-weight:700;
+    }
+    h1{font-size:clamp(2.1rem,6vw,5.4rem);line-height:1.05;margin-bottom:14px}
+    .hero h2{font-size:clamp(1.1rem,3vw,1.8rem);color:#fff;margin-bottom:10px}
+    .hero p{font-size:1.15rem;color:var(--muted);max-width:850px;margin:0 auto 28px}
+    .buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+    .btn{
+      border:none;
+      padding:13px 20px;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#06101c;
+      font-weight:800;
+      cursor:pointer;
+      text-decoration:none;
+      transition:.25s;
+    }
+    .btn.secondary{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line)}
+    .btn:hover{transform:translateY(-3px)}
+    nav{
+      position:sticky;top:0;z-index:10;
+      background:rgba(5,9,18,.86);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--line);
+      overflow:auto;
+      white-space:nowrap;
+    }
+    nav a{
+      display:inline-block;
+      color:var(--muted);
+      text-decoration:none;
+      padding:16px 18px;
+      font-weight:700;
+    }
+    nav a:hover{color:var(--accent)}
+    section{padding:70px 22px}
+    .wrap{max-width:1180px;margin:auto}
+    .title{font-size:2.2rem;margin-bottom:12px}
+    .subtitle{color:var(--muted);margin-bottom:28px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:24px;
+      box-shadow:0 18px 40px rgba(0,0,0,.22);
+    }
+    .card h3{color:var(--accent);margin-bottom:10px}
+    .card p,.card li{color:var(--muted)}
+    .topic{
+      cursor:pointer;
+      transition:.25s;
+      min-height:250px;
+    }
+    .topic:hover{transform:translateY(-6px);border-color:rgba(81,214,255,.5)}
+    .topic .num{
+      width:42px;height:42px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(81,214,255,.13);
+      color:var(--accent);
+      font-weight:900;
+      margin-bottom:12px;
+    }
+    .details{display:none;margin-top:15px;border-top:1px solid var(--line);padding-top:15px}
+    .topic.active .details{display:block}
+    .flow{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+    .step{
+      flex:1 1 170px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      text-align:center;
+    }
+    .arrow{font-size:1.8rem;color:var(--accent)}
+    .simulator input,.simulator select,.simulator textarea{
+      width:100%;
+      padding:13px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#09182a;
+      color:var(--text);
+      margin:8px 0 12px;
+      outline:none;
+    }
+    .result{
+      padding:14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      margin-top:10px;
+      min-height:50px;
+    }
+    .ok{color:var(--ok);font-weight:800}
+    .bad{color:var(--bad);font-weight:800}
+    .quiz-item{margin-bottom:22px}
+    .option{
+      display:block;
+      width:100%;
+      text-align:left;
+      padding:12px 14px;
+      margin:8px 0;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#0b1b2f;
+      color:var(--text);
+      cursor:pointer;
+    }
+    .option.correct{border-color:var(--ok);background:rgba(57,229,159,.13)}
+    .option.wrong{border-color:var(--bad);background:rgba(255,107,138,.13)}
+    .progressBox{background:#0b1b2f;border-radius:999px;height:15px;overflow:hidden;border:1px solid var(--line)}
+    .progressBar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.4s}
+    footer{text-align:center;padding:35px 20px;color:var(--muted);border-top:1px solid var(--line)}
+    ul{padding-left:20px}
+    @media(max-width:700px){.arrow{display:none}section{padding:45px 18px}}
+  </style>
+</head>
+<body>
+
+<header id="inicio">
+  <div class="hero">
+    <div class="badge">Tecnológico de Estudios Superiores de Huixquilucan</div>
+    <h2>Ingeniería en Sistemas Computacionales</h2>
+    <h1>Lenguajes y Autómatas I</h1>
+    <p>Página web interactiva para entender, practicar y evaluar los contenidos del temario: lenguajes formales, expresiones regulares, autómatas finitos, análisis léxico, análisis sintáctico y máquinas de Turing.</p>
+    <div class="buttons">
+      <a class="btn" href="#temario">Explorar temario</a>
+      <a class="btn secondary" href="#evaluacion">Resolver evaluación</a>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <a href="#inicio">Inicio</a>
+  <a href="#objetivo">Objetivo</a>
+  <a href="#temario">Temario</a>
+  <a href="#simuladores">Interactivo</a>
+  <a href="#practicas">Prácticas</a>
+  <a href="#evaluacion">Evaluación</a>
+</nav>
+
+<section id="objetivo">
+  <div class="wrap">
+    <h2 class="title">Objetivo de la página</h2>
+    <p class="subtitle">Esta plataforma organiza el contenido de la asignatura y lo convierte en explicaciones, ejemplos, actividades y evaluaciones.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Comprender</h3>
+        <p>Explica los conceptos principales de lenguajes formales, compiladores, expresiones regulares y autómatas.</p>
+      </div>
+      <div class="card">
+        <h3>Practicar</h3>
+        <p>Incluye simuladores sencillos para probar cadenas, tokens y comportamiento básico de autómatas.</p>
+      </div>
+      <div class="card">
+        <h3>Evaluar</h3>
+        <p>Contiene un cuestionario interactivo con calificación automática para reforzar lo aprendido.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="temario">
+  <div class="wrap">
+    <h2 class="title">Temario de Lenguajes y Autómatas I</h2>
+    <p class="subtitle">Haz clic en cada tarjeta para ver subtemas, explicación y ejemplo.</p>
+    <div class="grid">
+
+      <div class="card topic" onclick="toggleTopic(this)">
+        <div class="num">1</div>
+        <h3>Introducción a la Teoría de Lenguajes Formales</h3>
+        <p>Base para entender cómo se representan y procesan los lenguajes.</p>
+        <div class="details">
+          <ul>
+            <li>Alfabeto: conjunto de símbolos.</li>
+            <li>Cadenas: secuencias formadas con símbolos.</li>
+            <li>Lenguajes: conjuntos de cadenas.</li>
+            <li>Estructura de un traductor.</li>
+            <li>Fases de un compilador.</li>
+          </ul>
+          <p><b>Ejemplo:</b> Σ = {0,1}; cadena válida: 1010.</p>
+        </div>
+      </div>
+
+      <div class="card topic" onclick="toggleTopic(this)">
+        <div class="num">2</div>
+        <h3>Expresiones Regulares</h3>
+        <p>Permiten describir patrones para reconocer cadenas.</p>
+        <div class="details">
+          <ul>
+            <li>Definición formal de una ER.</li>
+            <li>Diseño de ER.</li>
+            <li>Aplicaciones en problemas reales.</li>
+          </ul>
+          <p><b>Ejemplo:</b> [0-9]+ reconoce números enteros.</p>
+        </div>
+      </div>
+
+      <div class="card topic" onclick="toggleTopic(this)">
+        <div class="num">3</div>
+        <h3>Autómatas Finitos</h3>
+        <p>Modelos matemáticos con estados y transiciones.</p>
+        <div class="details">
+          <ul>
+            <li>Definición y clasificación de AF.</li>
+            <li>AFND a AFD.</li>
+            <li>Representación de ER usando AFND.</li>
+            <li>Minimización de estados.</li>
+            <li>Aplicaciones y casos de estudio.</li>
+          </ul>
+          <p><b>Ejemplo:</b> Un autómata puede aceptar cadenas que terminan en 01.</p>
+        </div>
+      </div>
+
+      <div class="card topic" onclick="toggleTopic(this)">
+        <div class="num">4</div>
+        <h3>Análisis Léxico</h3>
+        <p>Primera fase del compilador: transforma código fuente en tokens.</p>
+        <div class="details">
+          <ul>
+            <li>Funciones del analizador léxico.</li>
+            <li>Componentes léxicos, patrones y lexemas.</li>
+            <li>Tabla de tokens.</li>
+            <li>Errores léxicos.</li>
+            <li>Generadores léxicos.</li>
+          </ul>
+          <p><b>Ejemplo:</b> int edad = 20; produce tokens: tipo, identificador, operador, número.</p>
+        </div>
+      </div>
+
+      <div class="card topic" onclick="toggleTopic(this)">
+        <div class="num">5</div>
+        <h3>Análisis Sintáctico</h3>
+        <p>Verifica que las instrucciones cumplan las reglas gramaticales.</p>
+        <div class="details">
+          <ul>
+            <li>Gramáticas y clasificación.</li>
+            <li>GLC.</li>
+            <li>Árboles de derivación.</li>
+            <li>Formas normales de Chomsky.</li>
+            <li>Diagramas de sintaxis.</li>
+            <li>FIRST y FOLLOW.</li>
+            <li>Manejo de errores.</li>
+          </ul>
+          <p><b>Ejemplo:</b> Una expresión debe cumplir reglas como E → E + T.</p>
+        </div>
+      </div>
+
+      <div class="card topic" onclick="toggleTopic(this)">
+        <div class="num">6</div>
+        <h3>Máquinas de Turing</h3>
+        <p>Modelo de cómputo capaz de simular procesos algorítmicos.</p>
+        <div class="details">
+          <ul>
+            <li>Definición formal de MT.</li>
+            <li>Construcción modular.</li>
+            <li>Lenguajes aceptados por la MT.</li>
+          </ul>
+          <p><b>Ejemplo:</b> Una MT puede leer, escribir y moverse sobre una cinta.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 class="title">Fases de un compilador</h2>
+    <p class="subtitle">Representación visual del proceso que transforma un programa fuente en código ejecutable.</p>
+    <div class="flow">
+      <div class="step">Código fuente</div><div class="arrow">→</div>
+      <div class="step">Análisis léxico</div><div class="arrow">→</div>
+      <div class="step">Análisis sintáctico</div><div class="arrow">→</div>
+      <div class="step">Análisis semántico</div><div class="arrow">→</div>
+      <div class="step">Código objeto</div>
+    </div>
+  </div>
+</section>
+
+<section id="simuladores">
+  <div class="wrap">
+    <h2 class="title">Apartados interactivos</h2>
+    <p class="subtitle">Prueba cadenas, reconoce tokens y observa resultados al instante.</p>
+    <div class="grid">
+      <div class="card simulator">
+        <h3>Validador de expresión regular</h3>
+        <p>Escribe una cadena para comprobar si es un número entero.</p>
+        <input id="regexInput" placeholder="Ejemplo: 12345">
+        <button class="btn" onclick="checkRegex()">Validar</button>
+        <div id="regexResult" class="result"></div>
+      </div>
+
+      <div class="card simulator">
+        <h3>Autómata simple</h3>
+        <p>Acepta cadenas binarias que terminan en <b>01</b>.</p>
+        <input id="afInput" placeholder="Ejemplo: 1101">
+        <button class="btn" onclick="checkAF()">Probar cadena</button>
+        <div id="afResult" class="result"></div>
+      </div>
+
+      <div class="card simulator">
+        <h3>Identificador de token</h3>
+        <p>Escribe una palabra y el sistema intentará clasificarla.</p>
+        <input id="tokenInput" placeholder="Ejemplo: while, edad, 25, +">
+        <button class="btn" onclick="checkToken()">Analizar</button>
+        <div id="tokenResult" class="result"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="practicas">
+  <div class="wrap">
+    <h2 class="title">Prácticas sugeridas</h2>
+    <p class="subtitle">Actividades basadas en el programa de la asignatura.</p>
+    <div class="grid">
+      <div class="card"><h3>Práctica 1</h3><p>Obtener un alfabeto a partir de un lenguaje y viceversa.</p></div>
+      <div class="card"><h3>Práctica 2</h3><p>Diseñar expresiones regulares para correos, números y palabras reservadas.</p></div>
+      <div class="card"><h3>Práctica 3</h3><p>Construir un autómata finito a partir de una expresión regular.</p></div>
+      <div class="card"><h3>Práctica 4</h3><p>Crear una tabla de tokens para un lenguaje de programación propio.</p></div>
+      <div class="card"><h3>Práctica 5</h3><p>Construir diagramas de sintaxis y una gramática libre de contexto.</p></div>
+      <div class="card"><h3>Práctica 6</h3><p>Simular una Máquina de Turing en un lenguaje de alto nivel.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="evaluacion">
+  <div class="wrap">
+    <h2 class="title">Evaluación interactiva</h2>
+    <p class="subtitle">Contesta el cuestionario. Al final se mostrará tu calificación.</p>
+    <div class="card">
+      <div class="quiz-item">
+        <h3>1. ¿Qué es un alfabeto en lenguajes formales?</h3>
+        <button class="option" onclick="answer(this,true)">Un conjunto finito de símbolos</button>
+        <button class="option" onclick="answer(this,false)">Un programa compilado</button>
+        <button class="option" onclick="answer(this,false)">Una base de datos</button>
+      </div>
+      <div class="quiz-item">
+        <h3>2. ¿Para qué sirve una expresión regular?</h3>
+        <button class="option" onclick="answer(this,false)">Para diseñar interfaces gráficas</button>
+        <button class="option" onclick="answer(this,true)">Para describir patrones de cadenas</button>
+        <button class="option" onclick="answer(this,false)">Para apagar la computadora</button>
+      </div>
+      <div class="quiz-item">
+        <h3>3. ¿Qué hace el analizador léxico?</h3>
+        <button class="option" onclick="answer(this,true)">Convierte el código en tokens</button>
+        <button class="option" onclick="answer(this,false)">Crea tablas SQL</button>
+        <button class="option" onclick="answer(this,false)">Instala un compilador</button>
+      </div>
+      <div class="quiz-item">
+        <h3>4. ¿Qué estudia el análisis sintáctico?</h3>
+        <button class="option" onclick="answer(this,false)">El color de la página</button>
+        <button class="option" onclick="answer(this,true)">La estructura gramatical del programa</button>
+        <button class="option" onclick="answer(this,false)">La velocidad del internet</button>
+      </div>
+      <div class="quiz-item">
+        <h3>5. ¿Qué representa una Máquina de Turing?</h3>
+        <button class="option" onclick="answer(this,true)">Un modelo formal de cómputo</button>
+        <button class="option" onclick="answer(this,false)">Un antivirus</button>
+        <button class="option" onclick="answer(this,false)">Una página web</button>
+      </div>
+
+      <h3>Progreso</h3>
+      <div class="progressBox"><div id="progress" class="progressBar"></div></div>
+      <div id="score" class="result">Calificación: 0 / 5</div>
+      <button class="btn secondary" onclick="resetQuiz()">Reiniciar evaluación</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><b>Tecnológico de Estudios Superiores de Huixquilucan</b></p>
+  <p>Ingeniería en Sistemas Computacionales | Lenguajes y Autómatas I</p>
+  <p>Página web interactiva educativa</p>
+</footer>
+
+<script>
+  function toggleTopic(card){ card.classList.toggle('active'); }
+
+  function checkRegex(){
+    const value = document.getElementById('regexInput').value.trim();
+    const result = document.getElementById('regexResult');
+    if(/^[0-9]+$/.test(value)){
+      result.innerHTML = '<span class="ok">Cadena válida:</span> corresponde a un número entero.';
+    }else{
+      result.innerHTML = '<span class="bad">Cadena no válida:</span> debe contener solo dígitos del 0 al 9.';
+    }
+  }
+
+  function checkAF(){
+    const value = document.getElementById('afInput').value.trim();
+    const result = document.getElementById('afResult');
+    if(!/^[01]+$/.test(value)){
+      result.innerHTML = '<span class="bad">Error:</span> solo se permiten 0 y 1.';
+    }else if(value.endsWith('01')){
+      result.innerHTML = '<span class="ok">Aceptada:</span> la cadena termina en 01.';
+    }else{
+      result.innerHTML = '<span class="bad">Rechazada:</span> la cadena no termina en 01.';
+    }
+  }
+
+  function checkToken(){
+    const value = document.getElementById('tokenInput').value.trim();
+    const result = document.getElementById('tokenResult');
+    const reserved = ['if','else','while','for','int','float','return','class'];
+    if(reserved.includes(value)){
+      result.innerHTML = '<span class="ok">Token:</span> palabra reservada.';
+    }else if(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)){
+      result.innerHTML = '<span class="ok">Token:</span> identificador.';
+    }else if(/^[0-9]+$/.test(value)){
+      result.innerHTML = '<span class="ok">Token:</span> número entero.';
+    }else if(/^[+\-*\/=]$/.test(value)){
+      result.innerHTML = '<span class="ok">Token:</span> operador.';
+    }else{
+      result.innerHTML = '<span class="bad">No reconocido:</span> posible error léxico.';
+    }
+  }
+
+  let answered = 0;
+  let score = 0;
+  function answer(btn, correct){
+    const group = btn.parentElement;
+    if(group.dataset.done === 'true') return;
+    group.dataset.done = 'true';
+    answered++;
+    if(correct){ score++; btn.classList.add('correct'); }
+    else{
+      btn.classList.add('wrong');
+      [...group.querySelectorAll('.option')].forEach(o=>{
+        if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+      });
+    }
+    document.getElementById('score').innerHTML = 'Calificación: ' + score + ' / 5';
+    document.getElementById('progress').style.width = (answered/5*100) + '%';
+  }
+
+  function resetQuiz(){
+    answered = 0; score = 0;
+    document.querySelectorAll('.quiz-item').forEach(q=>{
+      q.dataset.done = 'false';
+      q.querySelectorAll('.option').forEach(o=>o.classList.remove('correct','wrong'));
+    });
+    document.getElementById('score').innerHTML = 'Calificación: 0 / 5';
+    document.getElementById('progress').style.width = '0%';
+  }
+</script>
+
+</body>
+</html>
